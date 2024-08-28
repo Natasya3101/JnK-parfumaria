@@ -1,6 +1,7 @@
 package com.parfumaria.be.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType; // Import this
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,12 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.parfumaria.be.model.Parfume;
+import com.parfumaria.be.model.Parfume; // Ensure correct package name
+import com.parfumaria.be.dto.ProductRequest; // Import your ProductRequest class
+import com.parfumaria.be.response.GenericResponse; // Import GenericResponse class
 import com.parfumaria.be.services.ParfumeService;
 
 @RequestMapping("/api")
 @RestController
-
 public class ParfumeController {
 
     @Autowired
