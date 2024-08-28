@@ -21,7 +21,7 @@ const ImageSlider = () => {
     <section className="relative w-full h-screen overflow-hidden">
       <div className="relative w-full h-full">
         <img
-          className=" transition-transform duration-1000"
+          className="absolute top-0 left-0 w-full h-full bg-cover bg-center transition-transform duration-1000"
           style={{ backgroundImage: `url(${images[currentIndex]})` }}
         />
       </div>
