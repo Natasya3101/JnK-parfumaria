@@ -13,7 +13,7 @@ const Login = ({ isOpen, onClose }) => {
     event.preventDefault();
     // Here, you would add your login logic (e.g., API call).
     // On successful login, navigate to the home page.
-    navigate("/home");
+    navigate("/");
     onClose(); // Close the modal after login
   };
 

@@ -1,11 +1,19 @@
 // src/Home.js
 import React from 'react';
-import ImageSlider from '../componets/ImageSlider'; // Adjust the path as necessary
+
+import VideoSlider from '../componets/VideoSlider';
+
+
+
 
 function Home() {
   return (
     <div>
-      <ImageSlider />
+      <VideoSlider />
+      <div className='p-10'>
+        <h1>GET NOW !!!</h1>
+      </div>
+      
     </div>
   );
 }
