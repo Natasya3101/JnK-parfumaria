@@ -1,7 +1,7 @@
-package com.parfumaria.be.controller;
+package com.parfumaria.be.controller.product;
 
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType; // Import this
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,21 +10,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.parfumaria.be.model.Parfume; // Ensure correct package name
-import com.parfumaria.be.dto.ProductRequest; // Import your ProductRequest class
-import com.parfumaria.be.response.GenericResponse; // Import GenericResponse class
-import com.parfumaria.be.services.ParfumeService;
+import com.parfumaria.be.dto.GenericResponse;
+import com.parfumaria.be.dto.products.ProductRequest;
+import com.parfumaria.be.services.product.ProductService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RequestMapping("/api")
 @RestController
+@Tag(name = "Parfume")
 public class ParfumeController {
 
     @Autowired
-    private ParfumeService parfumeService;
+    private ProductService parfumeService;
 
-    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> addProduct(ProductRequest request,
-                                             @RequestParam("Product Image") MultipartFile file) {
+    @PostMapping(value = "/product/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> addProduct(ProductRequest request, @RequestParam("Product Image") MultipartFile file) {
         try {
             parfumeService.add(request, file);
             return ResponseEntity.ok().body(GenericResponse.success(null, "Success Add New Product"));

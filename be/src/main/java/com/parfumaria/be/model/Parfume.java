@@ -1,5 +1,7 @@
 package com.parfumaria.be.model;
 
+import java.sql.Blob;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +26,9 @@ public class Parfume {
     private String name;
     private Integer stock;
     private Integer price;
-    private String pict;
+    private Blob pict;
     @ManyToOne
-    @JoinColumn(name = "id_Cateory", referencedColumnName = "id")
-    private Category idCategory;
+    @JoinColumn(name = "category", referencedColumnName = "id")
+    private Category category;
 
 }
