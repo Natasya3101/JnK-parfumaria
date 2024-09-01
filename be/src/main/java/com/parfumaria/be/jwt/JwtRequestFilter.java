@@ -1,6 +1,5 @@
 package com.parfumaria.be.jwt;
 
-// import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -15,12 +14,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.parfumaria.be.model.User;
-import com.parfumaria.be.repository.UserRepository;
-
+import com.parfumaria.be.models.User;
+import com.parfumaria.be.repositorys.UsersRepository;
 
 import java.io.IOException;
-// import java.util.Collections;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -29,7 +26,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -41,9 +38,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 String subject = jwtUtil.verify(token);
-                Integer userId = Integer.parseInt(subject);
+                String userId = subject;
 
-                User user = userRepository.findUserById(userId);
+                User user = userRepository.findById(userId).orElse(null);
                 if (user != null) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             user, null, null);

@@ -1,5 +1,4 @@
-// src/App.jsx
-import Header from "./componets/Header";
+import Header from "./components/Header";
 import { Outlet } from "react-router-dom";
 
 function App() {
@@ -7,6 +6,7 @@ function App() {
     <div>
       <Header />
       <Outlet />
+      
     </div>
   );
 }

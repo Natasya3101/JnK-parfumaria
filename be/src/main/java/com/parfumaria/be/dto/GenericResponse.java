@@ -3,11 +3,9 @@ package com.parfumaria.be.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class GenericResponse<T> {
     private boolean success;
@@ -20,16 +18,16 @@ public class GenericResponse<T> {
 
     public static<T> GenericResponse<T> success(T data,String message){
         return GenericResponse.<T>builder()
-        .success(true)
         .message(message)
         .data(data)
+        .success(true)
         .build();
     }
 
     public static <T> GenericResponse <T> eror(String message){
         return GenericResponse.<T>builder()
-        .success(false)
         .message(message)
+        .success(false)
         .build();
     }
 }
