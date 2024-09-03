@@ -2,14 +2,33 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { login as loginService } from "../service/userService";
+import {
+  login as loginService,
+  register as registerService,
+} from "../service/userService";
 
 const Login = ({ isOpen, onClose }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [login, setLogin] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
+  const [register, setRegister] = useState({
+    fullName: "",
+    gender: "",
+    phoneNumber: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChangeRegister = (e) => {
+    const { name, value } = e.target;
+    setRegister((prevRegister) => ({
+      ...prevRegister,
+      [name]: value,
+    }));
+  };
+
   const handleChangeLogin = (e) => {
     const { name, value } = e.target;
     setLogin((prevLogin) => ({
@@ -23,9 +42,36 @@ const Login = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    await loginService(login.email, login.password);
-    onClose();
-    navigate("/");
+    console.log(isRegistering);
+    if (isRegistering) {
+      await registerService(
+        register.fullName,
+        register.gender,
+        register.phoneNumber,
+        register.email,
+        register.password
+      );
+      handleChangeForm();
+    } else {
+      await loginService(login.email, login.password);
+      navigate("/");
+      onClose();
+    }
+  };
+
+  const handleChangeForm = () => {
+    setLogin({
+      email: "",
+      password: "",
+    });
+    setRegister({
+      fullName: "",
+      gender: "",
+      phoneNumber: "",
+      email: "",
+      password: "",
+    });
+    setIsRegistering(!isRegistering);
   };
 
   return (
@@ -43,7 +89,7 @@ const Login = ({ isOpen, onClose }) => {
           {isRegistering ? "Register" : "Login"}
         </h2>
 
-        <form  onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           {isRegistering && (
             <div className="flex flex-col gap-2 mb-2">
               <div>
@@ -51,6 +97,10 @@ const Login = ({ isOpen, onClose }) => {
                   Nama Lengkap
                 </label>
                 <input
+                  name="fullName"
+                  id="fullName"
+                  value={register.fullName}
+                  onChange={handleChangeRegister}
                   type="text" // Changed from email to text for 'Nama'
                   placeholder="Enter your name"
                   className="w-full p-2 border border-black rounded"
@@ -60,18 +110,26 @@ const Login = ({ isOpen, onClose }) => {
                 <label className="block text-black text-sm font-bold ">
                   Gender
                 </label>
-                <input
-                  type="text" // Changed from email to text for 'Nama'
-                  placeholder="Enter your name"
+                <select
+                  name="gender"
+                  id="gender"
+                  value={register.gender}
+                  onChange={handleChangeRegister}
                   className="w-full p-2 border border-black rounded"
-                />
+                >
+                  <option value="Male">Male</option>
+                  <option value="Famale">Famale</option>
+                </select>
               </div>
               <div>
                 <label className="block text-black text-sm font-bold ">
                   No.HP
                 </label>
                 <input
-                  type="text" 
+                  type="text"
+                  name="phoneNumber"
+                  value={register.phoneNumber}
+                  onChange={handleChangeRegister}
                   placeholder="Enter your name"
                   className="w-full p-2 border border-black rounded"
                 />
@@ -83,7 +141,10 @@ const Login = ({ isOpen, onClose }) => {
             <input
               type="email"
               name="email"
-              onChange={handleChangeLogin}
+              value={isRegistering ? register.email : login.email}
+              onChange={
+                isRegistering ? handleChangeRegister : handleChangeLogin
+              }
               placeholder="Enter your email"
               className="w-full p-2 border border-black rounded"
             />
@@ -94,7 +155,10 @@ const Login = ({ isOpen, onClose }) => {
               Password
             </label>
             <input
-              onChange={handleChangeLogin}
+              value={isRegistering ? register.password : login.password}
+              onChange={
+                isRegistering ? handleChangeRegister : handleChangeLogin
+              }
               name="password"
               type="password"
               placeholder="Enter your password"
@@ -118,7 +182,7 @@ const Login = ({ isOpen, onClose }) => {
               ? "Already have an account?"
               : "Don't have an account?"}{" "}
             <button
-              onClick={() => setIsRegistering(!isRegistering)}
+              onClick={handleChangeForm}
               className="text-gray-500 hover:underline"
             >
               {isRegistering ? "Login" : "Register"}

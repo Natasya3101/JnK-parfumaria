@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Register register(Register request) {
-        User user = usersRepository.findByEmail(request.getEmail()).orElse(null);
+        User user = usersRepository.findUserByEmail(request.getEmail());
         if (user == null) {
             User newUser = new User();
             newUser.setFullName(request.getFullName());
@@ -53,32 +52,43 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserRequest editProfile(UserRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = usersRepository.findUserByEmail(auth.getName());
-        User emailUser = usersRepository.findByEmail(request.getEmail()).orElse(null);
-        if (emailUser != null && request.getEmail().equals(emailUser.getEmail())) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User emailUser = usersRepository.findUserByEmail(request.getEmail());
+        System.out.println(request);
+        // Cek apakah email yang di-request sudah ada di database dan bukan milik
+        // pengguna yang sedang login
+        if (emailUser != null && !emailUser.getEmail().equals(currentUser.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email Sudah Terdaftar");
-        } else if (emailUser != null && user.getEmail().equals(request.getEmail())) {
-            user.setEmail(request.getEmail());
         }
-        user.setFullName(request.getFullName());
-        user.setGender(request.getGender());
-        user.setPhoneNumber(request.getPhoneNumber());
-        if (request.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Jika email yang di-request sama dengan email pengguna yang sedang login,
+        // tidak perlu mengupdate email
+        if (emailUser != null && emailUser.getEmail().equals(currentUser.getEmail())) {
+            currentUser.setFullName(request.getFullName());
+            currentUser.setDateOfBirth(request.getDateOfBirth());
+            currentUser.setAddress(request.getAddress());
+            currentUser.setGender(request.getGender());
+            currentUser.setPhoneNumber(request.getPhoneNumber());
+        } else{
+            currentUser.setFullName(request.getFullName());
+            currentUser.setDateOfBirth(request.getDateOfBirth());
+            currentUser.setEmail(request.getEmail());
+            currentUser.setAddress(request.getAddress());
+            currentUser.setPhoneNumber(request.getPhoneNumber());
+            currentUser.setGender(request.getGender());
         }
-        usersRepository.save(user);
+        usersRepository.save(currentUser);
         return request;
     }
 
     @Override
     public UserResponse profile() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = usersRepository.findUserByEmail(auth.getName());
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .address(user.getAddress())
                 .fullName(user.getFullName())
+                .dateOfBirth(user.getDateOfBirth())
                 .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender())
                 .build();

@@ -5,6 +5,7 @@ import VideoSlider from "../components/VideoSlider";
 import Footer from "../components/Footer";
 
 function Home() {
+  
   return (
     <div>
       <VideoSlider />

@@ -1,5 +1,7 @@
 package com.parfumaria.be.models;
 
+import java.time.LocalDate;
+
 import org.hibernate.annotations.UuidGenerator;
 
 import jakarta.persistence.Column;
@@ -30,6 +32,13 @@ public class User {
 
     @Column(name = "full_name")
     private String fullName;
+    
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "date_of_Birth")
+    private LocalDate dateOfBirth;
+
 
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;

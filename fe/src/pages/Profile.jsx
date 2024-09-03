@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { getProfile, logout, editProfile } from "../service/userService";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState({
-    fullName: 'Anna Avetisyan',
-    dateOfBirth: '2024-09-01',
-    email: 'info@aplusdesign.co',
-    address: '123 Main St, City, Country',
-    phoneNumber: '818 123 4567',
-    gender: 'Female',
+    id: "",
+    email: "",
+    fullName: "",
+    dateOfBirth: new Date(),
+    address: "",
+    phoneNumber: "",
+    gender: "",
   });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const result = await getProfile();
+      setProfileData(result);
+    };
+    fetchProfile();
+  }, []);
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -18,24 +30,28 @@ const Profile = () => {
   };
 
   const handleSave = () => {
+    editProfile(
+      profileData.email,
+      profileData.fullName,
+      profileData.dateOfBirth,
+      profileData.address,
+      profileData.phoneNumber,
+      profileData.gender
+    );
     setIsEditing(false);
-    // Save the data to your backend or local storage here
+    navigate("/profile");
   };
 
   const handleLogout = () => {
-    // Handle logout logic here, e.g., clear auth tokens, redirect to login page
-    console.log('Logged out');
+    logout();
+    navigate("/");
   };
 
   return (
-    <main className="max-w-md mx-auto p-10 m-5 bg-white rounded-lg border border-gray-200">
+    <main className="max-w-5xl mx-auto p-10 m-5 bg-white rounded-lg border border-gray-200">
       <h1 className="text-2xl font-semibold text-center mb-6">Profile</h1>
-      <div className="text-center mb-6">
-
-        
-        <h2 className="text-lg font-semibold">{profileData.fullName}</h2>
-      </div>
-      <form>
+      
+      <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="mb-4">
           <label className="block text-gray-700">Full Name</label>
           <input
@@ -52,7 +68,11 @@ const Profile = () => {
           <input
             type="date"
             name="dateOfBirth"
-            value={profileData.dateOfBirth}
+            value={
+              profileData.dateOfBirth == null
+                ? ""
+                : new Date(profileData.dateOfBirth).toISOString().split("T")[0]
+            }
             onChange={handleInputChange}
             disabled={!isEditing}
             className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
@@ -72,7 +92,7 @@ const Profile = () => {
         <div className="mb-4">
           <label className="block text-gray-700">Phone Number</label>
           <input
-            type="tel"
+            type="text"
             name="phoneNumber"
             value={profileData.phoneNumber}
             onChange={handleInputChange}
@@ -85,7 +105,7 @@ const Profile = () => {
           <input
             type="text"
             name="address"
-            value={profileData.address}
+            value={profileData.address ? profileData.address : ""}
             onChange={handleInputChange}
             disabled={!isEditing}
             className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
@@ -93,14 +113,16 @@ const Profile = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700">Gender</label>
-          <input
-            type="text"
+          <select
             name="gender"
             value={profileData.gender}
             onChange={handleInputChange}
             disabled={!isEditing}
             className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-          />
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
         </div>
       </form>
       <div className="flex justify-between mt-6">
@@ -108,7 +130,7 @@ const Profile = () => {
           onClick={isEditing ? handleSave : () => setIsEditing(true)}
           className="px-4 py-2 bg-pink-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
         >
-          {isEditing ? 'Save' : 'Edit Profile'}
+          {isEditing ? "Save" : "Edit Profile"}
         </button>
         <button
           onClick={handleLogout}
