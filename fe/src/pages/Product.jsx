@@ -52,13 +52,20 @@ function Product() {
   return (
     <div className="p-5">
       {/* Filter and Sort Controls */}
-      <div className="flex space-x-4 mb-5">
+      <div className="flex flex-col sm:flex-row sm:space-x-4 mb-5">
+        <input
+          type="text"
+          placeholder="Search"
+          name="name"
+          onChange={handleChange}
+          className="outline-4 outline outline-pink-100 focus:outline-pink-400 w-full p-2 rounded border border-white mt-2 text-black sm:mt-0"
+        />
         <select
           id="category"
           name="category"
           value={filter.category}
           onChange={handleChange}
-          className="border p-2 rounded bg-pink-50"
+          className="border p-2 rounded bg-pink-50 mt-2 sm:mt-0 sm:w-1/3"
         >
           <option value="">All</option>
           <option value="Women">Women's Perfume</option>
@@ -71,7 +78,7 @@ function Product() {
           value={filter.filter}
           name="sort"
           onChange={handleChange}
-          className="border p-2 rounded bg-pink-50"
+          className="border p-2 rounded bg-pink-50 mt-2 sm:mt-0 sm:w-1/3"
         >
           <option value="">Default</option>
           <option value="lowPrice">Low Price</option>
@@ -82,7 +89,7 @@ function Product() {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-4 gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
         {products.map((product) => (
           <ProductCard key={product.id} item={product} />
         ))}

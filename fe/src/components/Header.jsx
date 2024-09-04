@@ -32,11 +32,6 @@ function Header() {
       <div className="flex items-center space-x-10 text-white font-serif p-8">
         <button onClick={() => navigate("/")}>HOME</button>
         <button onClick={() => navigate("/product")}>PRODUCT</button>
-        <input
-          type="text"
-          placeholder="Search"
-          className="w-full p-2 rounded border border-white mt-2 text-black"
-        />
         <button
           onClick={() => navigate("/cart")}
           className="flex items-center space-x-3"
@@ -53,8 +48,6 @@ function Header() {
           </button>
         )}
       </div>
-
-      {/* Login Modal */}
       <Login isOpen={isLoginOpen} onClose={closeLogin} />
     </header>
   );

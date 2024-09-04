@@ -30,11 +30,11 @@ public class CartController {
     @GetMapping("/find-all")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<Object> findAll(){
-        try {
-            return ResponseEntity.ok().body(GenericResponse.success(cartService.findAllCart(), "Successfully Get All Cart"));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(GenericResponse.eror("Internal Server Error!"));
-        }
+        return ResponseEntity.ok().body(GenericResponse.success(cartService.findAll(), "Successfully Get All Cart"));
+        // try {
+        // } catch (Exception e) {
+        //     return ResponseEntity.internalServerError().body(GenericResponse.eror("Internal Server Error!"));
+        // }
     }
 
     @PostMapping("/add-cart-items")

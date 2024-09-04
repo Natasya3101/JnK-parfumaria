@@ -41,27 +41,24 @@ public class CartServiceImpl implements CartService {
     ImageService imageService;
 
     @Override
-    public CartResponse findAllCart() {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            User user = usersRepository.findUserByEmail(auth.getName());
-            Cart cart = cartRepository.findCartByUser(user);
-            List<CartItemsResponse> cartItemsResponse = cart.getCartItems().stream().map(this::toCartItemsResponse)
-                    .collect(Collectors.toList());
-            Integer totalAmount = 0;
-            for (CartItemsResponse cartItem : cartItemsResponse) {
-                totalAmount += cartItem.getAmount();
-            }
-            CartResponse response = new CartResponse();
-            response.setId(cart.getId());
-            response.setEmail(user.getEmail());
-            response.setTotalAmount(totalAmount);
-            response.setCartItems(cartItemsResponse);
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
+    public CartResponse findAll() {
+            // User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            // System.out.println("ini adalah user : " + user);
+            System.out.println(cartRepository.findAll());
+            // Cart cart = cartRepository.findCartByUser(user);
+            // System.out.println(cart);
+            // List<CartItemsResponse> cartItemsResponse = cart.getCartItems().stream().map(this::toCartItemsResponse)
+            //         .collect(Collectors.toList());
+            // Integer totalAmount = 0;
+            // for (CartItemsResponse cartItem : cartItemsResponse) {
+            //     totalAmount += cartItem.getAmount();
+            // }
+            // CartResponse response = new CartResponse();
+            // response.setId(cart.getId());
+            // response.setEmail(user.getEmail());
+            // response.setTotalAmount(totalAmount);
+            // response.setCartItems(cartItemsResponse);
             return null;
-        }
     }
 
     private ProductResponse toProductResponse(Products product) {
@@ -91,6 +88,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void add(CartRequest request) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Cart cart = cartRepository.findCartByUser(user);
+
         Products product = productsRepository.findProductsById(request.getProductId());
         if (request.getQuantity() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Qty");
@@ -101,10 +101,9 @@ public class CartServiceImpl implements CartService {
             request.setQuantity(product.getStock());
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = usersRepository.findUserByEmail(auth.getName());
+        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // User user = usersRepository.findUserByEmail(auth.getName());
 
-        Cart cart = cartRepository.findCartByUser(user);
         if (cart == null) {
             Cart newCart = new Cart();
             newCart.setUser(user);
@@ -119,7 +118,7 @@ public class CartServiceImpl implements CartService {
             newCart.getCartItems().add(cartItems);
             cartRepository.save(newCart);
         } else {
-            // jika product sudah ada di keranjang user
+            // // jika product sudah ada di keranjang user
             Boolean same = false;
             Set<CartItems> cartItems = cart.getCartItems();
             for (CartItems items : cartItems) {

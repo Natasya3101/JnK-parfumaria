@@ -10,8 +10,8 @@ export const login = async (email, password) => {
     },
   });
   const res = await response.json();
-  alert(res.message);
   localStorage.setItem("token", res.data.token);
+  alert(res.message);
 };
 
 export const register = async (

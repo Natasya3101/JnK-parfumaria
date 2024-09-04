@@ -32,6 +32,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("api/auth/profile",
+                                "api/auth/edit-profile",
+                                "/api/cart/find-all",
+                                "/api/cart/**")
+                        .authenticated()
                         .requestMatchers("api/user/register",
                                 "api/user/auth/login",
                                 "api/products/get-all-products",
@@ -40,10 +45,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**")
                         .permitAll()
-                        .requestMatchers(
-                            "api/auth/profile",
-                            "api/auth/edit-profile")
-                        .authenticated()
                         .anyRequest().authenticated())
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

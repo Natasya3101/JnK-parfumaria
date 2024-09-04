@@ -54,6 +54,7 @@ const Login = ({ isOpen, onClose }) => {
       handleChangeForm();
     } else {
       await loginService(login.email, login.password);
+      setLogin({})
       navigate("/");
       onClose();
     }
@@ -66,7 +67,7 @@ const Login = ({ isOpen, onClose }) => {
     });
     setRegister({
       fullName: "",
-      gender: "",
+      gender: "Male",
       phoneNumber: "",
       email: "",
       password: "",
