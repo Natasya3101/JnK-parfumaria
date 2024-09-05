@@ -23,7 +23,7 @@ function Header() {
   const closeLogin = () => setIsLoginOpen(false);
 
   return (
-    <header className="bg-pink-300  flex justify-between items-center z-40 text-black sticky top-0">
+    <header className="bg-pink-300  flex justify-between items-center z-40 text-black sticky top-0 p-1">
       <div className="flex items-center w-full max-w-lg mx-4 font-serif font-bold">
         <img src={logo} alt="logo" width={100} onClick={() => navigate("/")} />
         <h1 className="text-white text-xl font-bold">J&K Parfumaria</h1>

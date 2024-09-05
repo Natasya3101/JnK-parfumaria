@@ -34,7 +34,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("api/auth/profile",
                                 "api/auth/edit-profile",
-                                "/api/cart/find-all",
                                 "/api/cart/**")
                         .authenticated()
                         .requestMatchers("api/user/register",
@@ -44,8 +43,7 @@ public class SecurityConfig {
                                 "api/products/add-product",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
+                        .permitAll())
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
         // return http

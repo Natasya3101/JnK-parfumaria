@@ -7,7 +7,6 @@ import org.hibernate.annotations.UuidGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,7 +44,4 @@ public class User {
 
     @Column(name = "gender", length = 25)
     private String gender;
-
-    @OneToOne(mappedBy = "user")
-    private Cart cart;
 }

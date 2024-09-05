@@ -1,12 +1,14 @@
 package com.parfumaria.be.models;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -25,8 +27,9 @@ public class Cart {
     @Column(name = "id",length = 36,nullable = false)
     private String id;
 
-    @OneToMany
-    private Set<CartItems> cartItems = new HashSet<>();
+    // @OneToMany
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CartItems> cartItems = new ArrayList<>();
     
     @OneToOne 
     @JoinColumn(name = "user_id")

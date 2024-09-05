@@ -3,12 +3,10 @@ package com.parfumaria.be.services.cart;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,23 +40,25 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse findAll() {
-            // User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            // System.out.println("ini adalah user : " + user);
-            System.out.println(cartRepository.findAll());
-            // Cart cart = cartRepository.findCartByUser(user);
-            // System.out.println(cart);
-            // List<CartItemsResponse> cartItemsResponse = cart.getCartItems().stream().map(this::toCartItemsResponse)
-            //         .collect(Collectors.toList());
-            // Integer totalAmount = 0;
-            // for (CartItemsResponse cartItem : cartItemsResponse) {
-            //     totalAmount += cartItem.getAmount();
-            // }
-            // CartResponse response = new CartResponse();
-            // response.setId(cart.getId());
-            // response.setEmail(user.getEmail());
-            // response.setTotalAmount(totalAmount);
-            // response.setCartItems(cartItemsResponse);
+        try {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Cart cart = cartRepository.findCartByUser(user);
+            List<CartItemsResponse> cartItemsResponse = cart.getCartItems().stream().map(this::toCartItemsResponse)
+                    .collect(Collectors.toList());
+            Integer totalAmount = 0;
+            for (CartItemsResponse cartItem : cartItemsResponse) {
+                totalAmount += cartItem.getAmount();
+            }
+            CartResponse response = new CartResponse();
+            response.setId(cart.getId());
+            response.setEmail(user.getEmail());
+            response.setTotalAmount(totalAmount);
+            response.setCartItems(cartItemsResponse);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
+        }
     }
 
     private ProductResponse toProductResponse(Products product) {
@@ -101,15 +101,13 @@ public class CartServiceImpl implements CartService {
             request.setQuantity(product.getStock());
         }
 
-        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // User user = usersRepository.findUserByEmail(auth.getName());
-
         if (cart == null) {
             Cart newCart = new Cart();
             newCart.setUser(user);
             cartRepository.save(newCart);
 
             CartItems cartItems = new CartItems();
+            cartItems.setCart(cart);
             cartItems.setQty(request.getQuantity());
             cartItems.setAmount(request.getQuantity() * product.getPrice());
             cartItems.setProduct(product);
@@ -120,7 +118,7 @@ public class CartServiceImpl implements CartService {
         } else {
             // // jika product sudah ada di keranjang user
             Boolean same = false;
-            Set<CartItems> cartItems = cart.getCartItems();
+            List<CartItems> cartItems = cart.getCartItems();
             for (CartItems items : cartItems) {
                 if (items.getProduct().equals(product)) {
                     same = true;
@@ -140,6 +138,7 @@ public class CartServiceImpl implements CartService {
                 // jika product tidak ada di keranjang user
                 CartItems buffCartItems = new CartItems();
                 buffCartItems.setQty(request.getQuantity());
+                buffCartItems.setCart(cart);
                 buffCartItems.setAmount(request.getQuantity() * product.getPrice());
                 buffCartItems.setProduct(product);
                 cartItemsRepository.save(buffCartItems);
@@ -151,13 +150,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void deleteAll() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = usersRepository.findUserByEmail(auth.getName());
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Cart cart = cartRepository.findCartByUser(user);
         if (cart == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your Cart Is Empty");
         }
-        Set<CartItems> cartItems = cart.getCartItems();
+        List<CartItems> cartItems = cart.getCartItems();
         System.out.println(cartItems);
         cartRepository.delete(cart);
         cartItems.forEach(i -> cartItemsRepository.delete(i));
@@ -165,8 +163,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void deleteCartItems(String id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = usersRepository.findUserByEmail(auth.getName());
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Cart cart = cartRepository.findCartByUser(user);
         CartItems cartItems = cartItemsRepository.findCartItemsById(id);
         for (CartItems c : cart.getCartItems()) {

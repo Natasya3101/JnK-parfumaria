@@ -24,22 +24,25 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Cart")
 @CrossOrigin(origins = "http://localhost:5173/")
 public class CartController {
+    
     @Autowired
     CartService cartService;
 
     @GetMapping("/find-all")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<Object> findAll(){
-        return ResponseEntity.ok().body(GenericResponse.success(cartService.findAll(), "Successfully Get All Cart"));
-        // try {
-        // } catch (Exception e) {
-        //     return ResponseEntity.internalServerError().body(GenericResponse.eror("Internal Server Error!"));
-        // }
+    public ResponseEntity<Object> findAll() {
+        try {
+            return ResponseEntity.ok().body(GenericResponse.success(cartService.findAll(), "Successfully Add Cart"));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(GenericResponse.eror(e.getLocalizedMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(GenericResponse.eror("Internal Server Error!"));
+        }
     }
 
     @PostMapping("/add-cart-items")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<Object> addCart(@RequestBody CartRequest request){
+    public ResponseEntity<Object> addCart(@RequestBody CartRequest request) {
         try {
             cartService.add(request);
             return ResponseEntity.ok().body(GenericResponse.success(null, "Successfully Add Cart"));
@@ -52,7 +55,7 @@ public class CartController {
 
     @DeleteMapping("/delete-all-cart")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<Object> removeAll(){
+    public ResponseEntity<Object> removeAll() {
         try {
             cartService.deleteAll();
             return ResponseEntity.ok().body(GenericResponse.success(null, "Successfully Delete cart"));
@@ -65,7 +68,7 @@ public class CartController {
 
     @DeleteMapping("/delete-cart-items/{id}")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<Object> removeCartItems(@PathVariable(value = "id") String id){
+    public ResponseEntity<Object> removeCartItems(@PathVariable(value = "id") String id) {
         try {
             cartService.deleteCartItems(id);
             return ResponseEntity.ok().body(GenericResponse.success(null, "Successfully Delete cart items"));

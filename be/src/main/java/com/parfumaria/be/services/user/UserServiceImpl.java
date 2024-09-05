@@ -54,7 +54,6 @@ public class UserServiceImpl implements UserService {
     public UserRequest editProfile(UserRequest request) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User emailUser = usersRepository.findUserByEmail(request.getEmail());
-        System.out.println(request);
         // Cek apakah email yang di-request sudah ada di database dan bukan milik
         // pengguna yang sedang login
         if (emailUser != null && !emailUser.getEmail().equals(currentUser.getEmail())) {
