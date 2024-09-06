@@ -5,7 +5,7 @@
 # Fitur -fitur 
 - register & login
 - search, sort by asc, dsc , a-z, z-a
-- add cart, cart (add, delete)
+- add cart, cart (CRUD)
 - profil (edit)
 - logout 
   
