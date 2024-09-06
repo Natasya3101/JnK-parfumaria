@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
-import { getAllProducts } from "../service/productService";
+import { addCart, getAllProducts } from "../service/productService";
 
 function Product() {
   const [filter, setFilter] = useState({
@@ -49,6 +49,12 @@ function Product() {
     fetchProducts();
   }, [filter]);
 
+  const handleAddCart = async (id) => {
+    console.log(id);
+    const res = await addCart(id, 1);
+    alert(res.message)
+  };
+
   return (
     <div className="p-5">
       {/* Filter and Sort Controls */}
@@ -91,7 +97,7 @@ function Product() {
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
         {products.map((product) => (
-          <ProductCard key={product.id} item={product} />
+          <ProductCard key={product.id} item={product} onAddCart={() => handleAddCart(product.id)} />
         ))}
       </div>
     </div>

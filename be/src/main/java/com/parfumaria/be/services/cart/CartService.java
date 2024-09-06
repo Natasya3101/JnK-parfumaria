@@ -5,8 +5,8 @@ import com.parfumaria.be.dto.user.CartResponse;
 
 public interface CartService {
     void add(CartRequest request);
-    // CartResponse findAllCart();
+    void decreaseQuantity(CartRequest request);
+    void increaseQuantity(CartRequest request);
     CartResponse findAll();
-    void deleteAll();
     void deleteCartItems(String id);
 }

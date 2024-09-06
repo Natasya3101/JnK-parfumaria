@@ -18,6 +18,7 @@ import com.parfumaria.be.dto.user.UserRequest;
 import com.parfumaria.be.dto.user.UserResponse;
 import com.parfumaria.be.jwt.JwtUtil;
 import com.parfumaria.be.models.User;
+import com.parfumaria.be.repositorys.CartItemsRepository;
 import com.parfumaria.be.repositorys.UsersRepository;
 import com.parfumaria.be.services.image.ImageService;
 
@@ -33,6 +34,8 @@ public class UserServiceImpl implements UserService {
     JwtUtil jwtUtil;
     @Autowired
     ImageService imageService;
+    @Autowired
+    CartItemsRepository cartItemsRepository;
 
     @Override
     @Transactional

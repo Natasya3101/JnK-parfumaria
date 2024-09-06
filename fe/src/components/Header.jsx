@@ -30,22 +30,21 @@ function Header() {
       </div>
 
       <div className="flex items-center space-x-10 text-white font-serif p-8">
-        <button onClick={() => navigate("/")}>HOME</button>
-        <button onClick={() => navigate("/product")}>PRODUCT</button>
-        <button
-          onClick={() => navigate("/cart")}
-          className="flex items-center space-x-3"
-        >
-          <ShoppingCart size={30} />
-        </button>
+        <Link to={"/"}>HOME</Link>
+        <Link to={"/product"}>PRODUCT</Link>
+        {token && (
+          <Link to={"/cart"} className="flex items-center space-x-3">
+            <ShoppingCart size={30} />
+          </Link>
+        )}
         {token ? (
           <Link to={"/profile"}>
             <CircleUserRound size={30} /> <h1></h1>
           </Link>
         ) : (
-          <button onClick={openLogin} className="flex items-center space-x-3">
+          <Link onClick={openLogin} className="flex items-center space-x-3">
             <CircleUserRound size={30} /> <h1></h1>
-          </button>
+          </Link>
         )}
       </div>
       <Login isOpen={isLoginOpen} onClose={closeLogin} />

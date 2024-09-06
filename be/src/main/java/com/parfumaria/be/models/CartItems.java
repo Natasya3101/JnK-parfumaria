@@ -22,12 +22,14 @@ public class CartItems {
     private String id;
 
     private Integer qty;
+    
     private Integer amount;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Products product;
     
     @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

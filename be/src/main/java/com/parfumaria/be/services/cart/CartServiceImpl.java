@@ -6,24 +6,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.parfumaria.be.dto.products.ProductResponse;
 import com.parfumaria.be.dto.user.CartItemsResponse;
 import com.parfumaria.be.dto.user.CartRequest;
 import com.parfumaria.be.dto.user.CartResponse;
-import com.parfumaria.be.models.Cart;
 import com.parfumaria.be.models.CartItems;
 import com.parfumaria.be.models.Products;
 import com.parfumaria.be.models.User;
 import com.parfumaria.be.repositorys.CartItemsRepository;
-import com.parfumaria.be.repositorys.CartRepository;
 import com.parfumaria.be.repositorys.ProductsRepository;
 import com.parfumaria.be.repositorys.UsersRepository;
 import com.parfumaria.be.services.image.ImageService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -31,8 +29,6 @@ public class CartServiceImpl implements CartService {
     ProductsRepository productsRepository;
     @Autowired
     UsersRepository usersRepository;
-    @Autowired
-    CartRepository cartRepository;
     @Autowired
     CartItemsRepository cartItemsRepository;
     @Autowired
@@ -42,15 +38,15 @@ public class CartServiceImpl implements CartService {
     public CartResponse findAll() {
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Cart cart = cartRepository.findCartByUser(user);
-            List<CartItemsResponse> cartItemsResponse = cart.getCartItems().stream().map(this::toCartItemsResponse)
-                    .collect(Collectors.toList());
+            List<CartItems> cartItems = cartItemsRepository.findCartItemsByUser(user);
+            System.out.println(cartItems);
+            List<CartItemsResponse> cartItemsResponse = cartItems.stream().map(this::toCartItemsResponse)
+            .collect(Collectors.toList());
             Integer totalAmount = 0;
             for (CartItemsResponse cartItem : cartItemsResponse) {
                 totalAmount += cartItem.getAmount();
             }
             CartResponse response = new CartResponse();
-            response.setId(cart.getId());
             response.setEmail(user.getEmail());
             response.setTotalAmount(totalAmount);
             response.setCartItems(cartItemsResponse);
@@ -86,93 +82,52 @@ public class CartServiceImpl implements CartService {
         return response;
     }
 
+    @Transactional
     @Override
     public void add(CartRequest request) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Cart cart = cartRepository.findCartByUser(user);
-
         Products product = productsRepository.findProductsById(request.getProductId());
-        if (request.getQuantity() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Qty");
-        } else if (product.getStock() == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Out of Stock");
-        }
-        if (product.getStock() < request.getQuantity()) {
-            request.setQuantity(product.getStock());
-        }
-
-        if (cart == null) {
-            Cart newCart = new Cart();
-            newCart.setUser(user);
-            cartRepository.save(newCart);
-
-            CartItems cartItems = new CartItems();
-            cartItems.setCart(cart);
-            cartItems.setQty(request.getQuantity());
-            cartItems.setAmount(request.getQuantity() * product.getPrice());
-            cartItems.setProduct(product);
-            cartItemsRepository.save(cartItems);
-
-            newCart.getCartItems().add(cartItems);
-            cartRepository.save(newCart);
+        System.out.println(user);
+        CartItems cartItems = cartItemsRepository.findCartItemsByUserAndProduct(user, product);
+        System.out.println(cartItems);
+        if (cartItems == null) {
+            CartItems newCartItems = new CartItems();
+            newCartItems.setUser(user);
+            newCartItems.setProduct(product);
+            newCartItems.setQty(request.getQuantity());
+            newCartItems.setAmount(product.getPrice() * newCartItems.getQty());
+            System.out.println(cartItems);
+            cartItemsRepository.save(newCartItems);
         } else {
-            // // jika product sudah ada di keranjang user
-            Boolean same = false;
-            List<CartItems> cartItems = cart.getCartItems();
-            for (CartItems items : cartItems) {
-                if (items.getProduct().equals(product)) {
-                    same = true;
-                    if ((request.getQuantity() + items.getQty()) > product.getStock()) {
-                        items.setQty(product.getStock());
-                    } else {
-                        items.setQty(request.getQuantity() + items.getQty());
-                    }
-                    items.setAmount(product.getPrice() * items.getQty());
-                    break;
-                }
-            }
-            if (same) {
-                cart.setCartItems(cartItems);
-                cartRepository.save(cart);
-            } else {
-                // jika product tidak ada di keranjang user
-                CartItems buffCartItems = new CartItems();
-                buffCartItems.setQty(request.getQuantity());
-                buffCartItems.setCart(cart);
-                buffCartItems.setAmount(request.getQuantity() * product.getPrice());
-                buffCartItems.setProduct(product);
-                cartItemsRepository.save(buffCartItems);
-                cart.getCartItems().add(buffCartItems);
-                cartRepository.save(cart);
-            }
+            cartItems.setQty(cartItems.getQty() + request.getQuantity());
+            cartItems.setAmount(cartItems.getQty() * product.getPrice());
+            System.out.println(cartItems);
+            cartItemsRepository.save(cartItems);
         }
     }
 
     @Override
-    public void deleteAll() {
+    public void decreaseQuantity(CartRequest request) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Cart cart = cartRepository.findCartByUser(user);
-        if (cart == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your Cart Is Empty");
-        }
-        List<CartItems> cartItems = cart.getCartItems();
-        System.out.println(cartItems);
-        cartRepository.delete(cart);
-        cartItems.forEach(i -> cartItemsRepository.delete(i));
+        Products product = productsRepository.findProductsById(request.getProductId());
+        CartItems cartItem = cartItemsRepository.findCartItemsByUserAndProduct(user, product);
+        cartItem.setQty(cartItem.getQty() - request.getQuantity());
+        cartItem.setAmount(cartItem.getQty() * product.getPrice());
+        cartItemsRepository.save(cartItem);
+    }
+
+    @Override
+    public void increaseQuantity(CartRequest request) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Products product = productsRepository.findProductsById(request.getProductId());
+        CartItems cartItem = cartItemsRepository.findCartItemsByUserAndProduct(user, product);
+        cartItem.setQty(cartItem.getQty() + request.getQuantity());
+        cartItem.setAmount(cartItem.getQty() * product.getPrice());
+        cartItemsRepository.save(cartItem);
     }
 
     @Override
     public void deleteCartItems(String id) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Cart cart = cartRepository.findCartByUser(user);
-        CartItems cartItems = cartItemsRepository.findCartItemsById(id);
-        for (CartItems c : cart.getCartItems()) {
-            if (c.getId().equals(cartItems.getId())) {
-                cart.getCartItems().remove(c);
-                cartRepository.save(cart);
-                cartItemsRepository.delete(cartItems);
-                break;
-            }
-        }
+        cartItemsRepository.deleteById(id);
     }
 }

@@ -32,8 +32,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/auth/profile",
-                                "api/auth/edit-profile",
+                        .requestMatchers("api/user/auth/profile",
+                                "api/user/auth/edit-profile",
                                 "/api/cart/**")
                         .authenticated()
                         .requestMatchers("api/user/register",

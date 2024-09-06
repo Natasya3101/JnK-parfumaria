@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CartResponse {
-    private String id;
     private String email;
     private Integer totalAmount;
     private List<CartItemsResponse> cartItems;
