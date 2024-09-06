@@ -10,7 +10,7 @@
 - logout 
   
 # ERD
-! [erd](erd.png)
+![erd](erd.png)
 
 # TECH STACK
 - BACKEND  : JAVA, SPRING BOOT, SPRING SECURITY, JWT
